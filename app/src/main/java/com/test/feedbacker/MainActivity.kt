@@ -2,10 +2,15 @@ package com.test.feedbacker
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+    }
+
+    fun startManualFeedback(view: View) {
+        (application as FeedbackApplication).feedbacker.startFeedback()
     }
 }

@@ -1,16 +1,18 @@
 package com.test.feedbacker
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.app.Application
 import android.content.Context
+import android.content.DialogInterface
 import android.hardware.SensorManager
 import android.util.Log
 import com.squareup.seismic.ShakeDetector
 
-class Feedbacker(val context: Context) : ShakeDetector.Listener {
+class Feedbacker(val context: Context) : ShakeDetector.Listener, DialogInterface.OnClickListener {
 
-    var shakeDetector: ShakeDetector = ShakeDetector(this)
-    var act: Activity? = null
+    private var shakeDetector: ShakeDetector = ShakeDetector(this)
+    private var activity: Activity? = null
 
     companion object {
         fun with(application: Application): Feedbacker {
@@ -23,12 +25,20 @@ class Feedbacker(val context: Context) : ShakeDetector.Listener {
 
     override fun hearShake() {
         Log.d("####", "Device Shook")
+        AlertDialog.Builder(activity)
+            .setTitle("You shook your device. Want to share feedback ?")
+            .setPositiveButton("Share", this)
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.cancel()
+            }
+            .setCancelable(true)
+            .show()
     }
 
     private fun start() {
         shakeDetector.start(
-            act?.getSystemService(Context.SENSOR_SERVICE) as SensorManager,
-            SensorManager.SENSOR_DELAY_GAME
+            activity?.getSystemService(Context.SENSOR_SERVICE) as SensorManager,
+            SensorManager.SENSOR_DELAY_UI
         )
         Log.d("####", "ShakeDetector Started...")
     }
@@ -38,10 +48,18 @@ class Feedbacker(val context: Context) : ShakeDetector.Listener {
         Log.d("####", "ShakeDetector Stopped...")
     }
 
-    fun setActivity(activity: Activity?) {
-        this.act = activity
+    fun setCurrentActivity(activity: Activity?) {
+        this.activity = activity
         activity?.let {
             start()
         } ?: stop()
+    }
+
+    override fun onClick(dialog: DialogInterface?, p1: Int) {
+        dialog?.dismiss()
+    }
+
+    fun startFeedback() {
+        // TODO
     }
 }
