@@ -15,11 +15,11 @@ class LifecycleCallbacks(val feedbacker: Feedbacker) : Application.ActivityLifec
     }
 
     override fun onActivityResumed(p0: Activity) {
-        feedbacker.setActivity(p0)
+        feedbacker.setCurrentActivity(p0)
     }
 
     override fun onActivityPaused(p0: Activity) {
-        feedbacker.setActivity(null)
+        feedbacker.setCurrentActivity(null)
     }
 
     override fun onActivityStopped(p0: Activity) {
