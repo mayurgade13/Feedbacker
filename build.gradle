@@ -8,3 +8,7 @@ plugins {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
+ext {
+    ver_seismic = '1.0.3'
+}

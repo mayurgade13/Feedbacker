@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Feedbacker</string>
+    <string name="txt_start_feedback">Shake Device to Start Feedback</string>
+    <string name="txt_start_feekback_manually">Start Feekback Manually</string>
 </resources>
