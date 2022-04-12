@@ -5,9 +5,13 @@ import android.app.AlertDialog
 import android.app.Application
 import android.content.Context
 import android.content.DialogInterface
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.hardware.SensorManager
+import android.net.Uri
 import android.util.Log
 import com.squareup.seismic.ShakeDetector
+import java.io.File
 
 class Feedbacker(val context: Context) : ShakeDetector.Listener, DialogInterface.OnClickListener {
 
@@ -15,6 +19,9 @@ class Feedbacker(val context: Context) : ShakeDetector.Listener, DialogInterface
     private var activity: Activity? = null
 
     companion object {
+
+        const val SCREENSHOT_DIRECTORY = "/screenshots";
+
         fun with(application: Application): Feedbacker {
             val feedbacker = Feedbacker(application.applicationContext)
             val lifecycleCallbacks = LifecycleCallbacks(feedbacker)
@@ -60,6 +67,33 @@ class Feedbacker(val context: Context) : ShakeDetector.Listener, DialogInterface
     }
 
     fun startFeedback() {
-        // TODO
+        val screenshotBitmap = getScreenshotBitmap()
+        val path = getScreenshotDirectory(context)
+        var screenShotUri: Uri? = null
+        if (screenshotBitmap != null && path != null) {
+            val screenshotFile: File? = Utils.saveBitmapToDirectory(screenshotBitmap, File(path))
+            screenShotUri = Uri.fromFile(screenshotFile)
+        }
+        Log.d("####", "screenShotUri: "+screenShotUri)
+    }
+
+    private fun getScreenshotBitmap(): Bitmap? {
+        val view = activity?.window?.decorView?.rootView
+        if (view?.width == 0 || view?.height == 0) {
+            return null
+        }
+        view?.let {
+            val bitmap = Bitmap.createBitmap(it.width, it.height, Bitmap.Config.RGB_565)
+            val canvas = Canvas(bitmap)
+            it.draw(canvas)
+            return bitmap
+        } ?: return null
+    }
+
+    private fun getScreenshotDirectory(context: Context): String? {
+        context.filesDir?.let {
+            return it.absolutePath + SCREENSHOT_DIRECTORY
+        }
+        return null
     }
 }
