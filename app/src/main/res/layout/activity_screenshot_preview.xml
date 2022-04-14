@@ -11,21 +11,23 @@
     <EditText
         android:id="@+id/editText_feedback"
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:hint="@string/hint_share_details"
-        android:layout_marginHorizontal="50dp"
-        android:layout_height="wrap_content"/>
+        android:textColor="@color/black"
+        android:inputType="textCapSentences|textMultiLine"
+        android:scrollbars="vertical"
+        android:layout_marginHorizontal="50dp" />
 
     <ImageView
         android:id="@+id/screenshot_image"
         android:layout_width="match_parent"
         android:layout_marginHorizontal="50dp"
-        android:layout_height="400dp"/>
+        android:layout_height="300dp"/>
 
     <Button
         android:id="@+id/btnSendMail"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_marginHorizontal="50dp"
-        android:onClick="sendMail"
         android:text="@string/btn_text_send_to_mail"/>
 </LinearLayout>

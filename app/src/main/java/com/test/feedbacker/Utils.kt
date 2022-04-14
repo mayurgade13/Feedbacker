@@ -1,7 +1,10 @@
 package com.test.feedbacker
 
+import android.content.Context
 import android.graphics.Bitmap
+import android.net.Uri
 import android.util.Log
+import androidx.core.content.FileProvider
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -13,6 +16,8 @@ object Utils {
     private const val TAG = "Utils"
     private const val BITMAP_PREFIX = "feedback"
     private const val FILE_NAME_TEMPLATE = "%s_%s.jpg"
+    private const val FILE_PROVIDER_SUFFIX = ".fileprovider"
+
 
     fun saveBitmapToDirectory(bitmap: Bitmap, directory: File): File? {
         if (!directory.mkdirs() && !directory.exists()) {
@@ -47,5 +52,15 @@ object Utils {
             BITMAP_PREFIX,
             randomId
         )
+    }
+
+    fun getProviderUri(context: Context, uri: Uri): Uri? {
+        val path = uri.path
+        if (path != null) {
+            val file = File(path)
+            val authority = context.packageName + FILE_PROVIDER_SUFFIX
+            return FileProvider.getUriForFile(context, authority, file)
+        }
+        return null
     }
 }
