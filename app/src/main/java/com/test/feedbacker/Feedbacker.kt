@@ -5,6 +5,7 @@ import android.app.AlertDialog
 import android.app.Application
 import android.content.Context
 import android.content.DialogInterface
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.hardware.SensorManager
@@ -75,6 +76,7 @@ class Feedbacker(val context: Context) : ShakeDetector.Listener, DialogInterface
             screenShotUri = Uri.fromFile(screenshotFile)
         }
         Log.d("####", "screenShotUri: "+screenShotUri)
+        showScreenshotPreview(screenShotUri)
     }
 
     private fun getScreenshotBitmap(): Bitmap? {
@@ -95,5 +97,11 @@ class Feedbacker(val context: Context) : ShakeDetector.Listener, DialogInterface
             return it.absolutePath + SCREENSHOT_DIRECTORY
         }
         return null
+    }
+
+    private fun showScreenshotPreview(screenShotUri: Uri?) {
+        val intent = Intent(activity, ScreenshotPreviewActivity::class.java)
+        intent.putExtra("URI", screenShotUri)
+        activity?.startActivity(intent)
     }
 }

@@ -2,4 +2,6 @@
     <string name="app_name">Feedbacker</string>
     <string name="txt_start_feedback">Shake Device to Share Feedback</string>
     <string name="txt_start_feedback_manually">Start Feedback Manually</string>
+    <string name="hint_share_details">Share some details</string>
+    <string name="btn_text_send_to_mail">Send to Mail</string>
 </resources>
