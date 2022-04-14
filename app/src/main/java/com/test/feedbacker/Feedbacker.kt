@@ -65,6 +65,7 @@ class Feedbacker(val context: Context) : ShakeDetector.Listener, DialogInterface
 
     override fun onClick(dialog: DialogInterface?, p1: Int) {
         dialog?.dismiss()
+        startFeedback()
     }
 
     fun startFeedback() {
