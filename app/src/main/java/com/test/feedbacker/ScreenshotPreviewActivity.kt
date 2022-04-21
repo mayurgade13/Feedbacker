@@ -36,6 +36,7 @@ class ScreenshotPreviewActivity : AppCompatActivity() {
                 createSubjectFromAvailableData(),
                 attachment = attachment
             ))
+            finish()
         })
         binding.editTextFeedback.requestFocus()
     }

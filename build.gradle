@@ -11,4 +11,5 @@ task clean(type: Delete) {
 
 ext {
     ver_seismic = '1.0.3'
+    ver_falcon = '2.2.0'
 }

@@ -4,24 +4,24 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.app.Application
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.hardware.SensorManager
 import android.net.Uri
 import android.util.Log
+import com.jraska.falcon.Falcon
 import com.squareup.seismic.ShakeDetector
 import java.io.File
 
-class Feedbacker(val context: Context) : ShakeDetector.Listener, DialogInterface.OnClickListener {
+class Feedbacker(private val context: Context) : ShakeDetector.Listener {
 
     private var shakeDetector: ShakeDetector = ShakeDetector(this)
     private var activity: Activity? = null
+    private var isFeedbackFlowStarted = false
 
     companion object {
-
-        const val SCREENSHOT_DIRECTORY = "/screenshots";
+        const val SCREENSHOT_DIRECTORY = "/screenshots"
 
         fun with(application: Application): Feedbacker {
             val feedbacker = Feedbacker(application.applicationContext)
@@ -33,14 +33,22 @@ class Feedbacker(val context: Context) : ShakeDetector.Listener, DialogInterface
 
     override fun hearShake() {
         Log.d("####", "Device Shook")
-        AlertDialog.Builder(activity)
-            .setTitle("You shook your device. Want to share feedback ?")
-            .setPositiveButton("Share", this)
-            .setNegativeButton("Cancel") { dialog, _ ->
-                dialog.cancel()
-            }
-            .setCancelable(true)
-            .show()
+        if (!isFeedbackFlowStarted) {
+            isFeedbackFlowStarted = true
+            AlertDialog.Builder(activity)
+                .setTitle("You shook your device. Want to share feedback ?")
+                .setPositiveButton("Share") { dialog, _ ->
+                    dialog?.dismiss()
+                    isFeedbackFlowStarted = false
+                    startFeedback()
+                }
+                .setNegativeButton("Cancel") { dialog, _ ->
+                    dialog?.cancel()
+                    isFeedbackFlowStarted = false
+                }
+                .setCancelable(true)
+                .show()
+        }
     }
 
     private fun start() {
@@ -53,6 +61,7 @@ class Feedbacker(val context: Context) : ShakeDetector.Listener, DialogInterface
 
     private fun stop() {
         shakeDetector.stop()
+        isFeedbackFlowStarted = false
         Log.d("####", "ShakeDetector Stopped...")
     }
 
@@ -63,11 +72,6 @@ class Feedbacker(val context: Context) : ShakeDetector.Listener, DialogInterface
         } ?: stop()
     }
 
-    override fun onClick(dialog: DialogInterface?, p1: Int) {
-        dialog?.dismiss()
-        startFeedback()
-    }
-
     fun startFeedback() {
         val screenshotBitmap = getScreenshotBitmap()
         val path = getScreenshotDirectory(context)
@@ -75,22 +79,32 @@ class Feedbacker(val context: Context) : ShakeDetector.Listener, DialogInterface
         if (screenshotBitmap != null && path != null) {
             val screenshotFile: File? = Utils.saveBitmapToDirectory(screenshotBitmap, File(path))
             screenShotUri = Uri.fromFile(screenshotFile)
+            Log.d("####", "screenShotUri: $screenShotUri")
+            showScreenshotPreview(screenShotUri)
+            isFeedbackFlowStarted = false
+        } else {
+            Log.d("####", "Something went wrong: bitmap - $screenshotBitmap")
+            isFeedbackFlowStarted = false
         }
-        Log.d("####", "screenShotUri: "+screenShotUri)
-        showScreenshotPreview(screenShotUri)
     }
 
     private fun getScreenshotBitmap(): Bitmap? {
-        val view = activity?.window?.decorView?.rootView
-        if (view?.width == 0 || view?.height == 0) {
-            return null
+        try {
+            // Falcon can take screenshot of alerts, modals, toasts
+            return Falcon.takeScreenshotBitmap(activity)
+        } catch (exception: Falcon.UnableToTakeScreenshotException) {
+            val view = activity?.window?.decorView?.rootView
+            if (view?.width == 0 || view?.height == 0) {
+                return null
+            }
+            view?.let {
+                val bitmap = Bitmap.createBitmap(it.width, it.height, Bitmap.Config.RGB_565)
+                val canvas = Canvas(bitmap)
+                it.draw(canvas)
+                return bitmap
+            }
         }
-        view?.let {
-            val bitmap = Bitmap.createBitmap(it.width, it.height, Bitmap.Config.RGB_565)
-            val canvas = Canvas(bitmap)
-            it.draw(canvas)
-            return bitmap
-        } ?: return null
+        return null
     }
 
     private fun getScreenshotDirectory(context: Context): String? {
